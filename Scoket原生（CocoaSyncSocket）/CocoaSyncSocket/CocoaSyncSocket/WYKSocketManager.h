@@ -21,9 +21,11 @@
 + (instancetype)share;
 
 - (BOOL)connect;
+
 - (void)disConnect;
 
 - (void)sendMsg:(NSString *)msg;
+
 - (void)pullTheMsg;
 
 

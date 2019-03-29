@@ -45,7 +45,8 @@ static NSInteger KPingPongInterval = 5;
 
 - (void)initSocket
 {
-    self.gcdSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+    self.gcdSocket = [[GCDAsyncSocket alloc] initWithDelegate:self
+                                                delegateQueue:dispatch_get_main_queue()];
 }
 
 #pragma mark - 对外的一些接口
@@ -72,7 +73,9 @@ static NSInteger KPingPongInterval = 5;
 
 #pragma mark - GCDAsyncSocketDelegate
 //连接成功调用
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
+- (void)socket:(GCDAsyncSocket *)sock
+didConnectToHost:(NSString *)host
+          port:(uint16_t)port
 {
     NSLog(@"连接成功,host:%@,port:%d",host,port);
     //pingPong
@@ -82,7 +85,8 @@ static NSInteger KPingPongInterval = 5;
 }
 
 //断开连接的时候调用
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(nullable NSError *)err
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock
+                  withError:(nullable NSError *)err
 {
     NSLog(@"断开连接,host:%@,port:%d",sock.localHost,sock.localPort);
     if (self.delegate && [self.delegate respondsToSelector:@selector(showMessage:)]) {
@@ -105,7 +109,9 @@ static NSInteger KPingPongInterval = 5;
 }
 
 //收到消息
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+- (void)socket:(GCDAsyncSocket *)sock
+   didReadData:(NSData *)data
+       withTag:(long)tag
 {
     NSString *msg = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"收到消息：%@",msg);
@@ -117,7 +123,10 @@ static NSInteger KPingPongInterval = 5;
 }
 
 //为上一次设置的读取数据代理续时 (如果设置超时为-1，则永远不会调用到)
-- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutReadWithTag:(long)tag elapsed:(NSTimeInterval)elapsed bytesDone:(NSUInteger)length
+- (NSTimeInterval)socket:(GCDAsyncSocket *)sock
+shouldTimeoutReadWithTag:(long)tag
+                 elapsed:(NSTimeInterval)elapsed
+               bytesDone:(NSUInteger)length
 {
     NSLog(@"pingPong来延时保活，tag:%ld,elapsed:%f,length:%ld",tag,elapsed,length);
     if (self.delegate && [self.delegate respondsToSelector:@selector(showMessage:)]) {
@@ -163,7 +172,9 @@ static NSInteger KPingPongInterval = 5;
         return;
     }
     __weak __typeof(self) weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.reConnectTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
+                                 (int64_t)(self.reConnectTime * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf.delegate && [strongSelf.delegate respondsToSelector:@selector(showMessage:)]) {
             NSString *msg = [NSString stringWithFormat:@"断开重连中，%f",strongSelf.reConnectTime];
@@ -187,7 +198,8 @@ static NSInteger KPingPongInterval = 5;
 {
     // 每隔5s像服务器发送心跳包
     self.connectTimer = [NSTimer scheduledTimerWithTimeInterval:5
-                                                         target:self selector:@selector(longConnectToSocket)
+                                                         target:self
+                                                       selector:@selector(longConnectToSocket)
                                                        userInfo:nil
                                                         repeats:YES];
     // 在longConnectToSocket方法中进行长连接需要向服务器发送的讯息
@@ -204,7 +216,7 @@ static NSInteger KPingPongInterval = 5;
 //取消心跳
 - (void)destoryHeartBeat
 {
-    if (self.heartBeatTimer  && [self.heartBeatTimer isValid]) {
+    if (self.heartBeatTimer && [self.heartBeatTimer isValid]) {
         [self.heartBeatTimer invalidate];
         self.heartBeatTimer = nil;
     }
