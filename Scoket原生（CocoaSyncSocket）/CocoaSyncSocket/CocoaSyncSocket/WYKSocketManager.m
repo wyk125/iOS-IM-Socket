@@ -166,7 +166,7 @@ shouldTimeoutReadWithTag:(long)tag
 - (void)reConnect
 {
     //如果对一个已经连接的socket对象再次进行连接操作，会抛出异常（不可对已经连接的socket进行连接）程序崩溃
-    [self disConnect];
+    [self autoDisConnect];
     //重连次数 控制3次
     if (self.reConnectTime >= 5) {
         return;
@@ -189,13 +189,14 @@ shouldTimeoutReadWithTag:(long)tag
     if (self.reConnectTime == 0) {
         self.reConnectTime = 1;
     } else {
-        self.reConnectTime += 2;
+        self.reConnectTime += 5;
     }
 }
 
 //TODO:心跳机制
 - (void)initHeartBeat
 {
+    [self destoryHeartBeat];
     // 每隔5s像服务器发送心跳包
     self.connectTimer = [NSTimer scheduledTimerWithTimeInterval:5
                                                          target:self
